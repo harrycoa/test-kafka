@@ -1,8 +1,7 @@
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.*;
 
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 
 public class Producer {
@@ -19,11 +18,22 @@ public class Producer {
         props.put("buffer.memory", 33554432);
 
         KafkaProducer<String, String> prod = new KafkaProducer<>(props);
-        String topic = "testtopic0511";
+        String topic = "testtopic0511"; // topic creado
         int partition = 0;
         String key = "testKey";
         String value = "testValueharry";
-        prod.send(new ProducerRecord<>(topic,partition,key, value));
+        final ProducerRecord<String, String>  record = new ProducerRecord<>(topic,partition,key, value);
+
+        prod.send(record, new Callback() {
+            @Override
+            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+                if (e != null) {
+                    System.out.println("Send Failed: " + e);
+                }
+            }
+        });
+
+
         prod.close();
     }
 }
